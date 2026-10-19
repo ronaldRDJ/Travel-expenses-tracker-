@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Odo Fuel Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- STAGE 1 SCREEN: FUEL CALCULATOR VIEW (CAR DASHBOARD THEME) -->
+    <div class="container-card" id="calculatorView">
+        <h2>⚡ Odo Fuel Gauge</h2>
+        
+        <div class="input-group">
+            <label>Baseline Mileage (km/l)</label>
+            <input type="text" value="15" disabled>
+        </div>
+
+        <!-- 🚀 FIXED GRIDS ROWS FOR ODOMETER ELEMENTS -->
+        <div class="row-group">
+            <div class="input-group">
+                <label for="odoStart">Odo Start (km)</label>
+                <input type="number" id="odoStart" inputmode="decimal" pattern="[0-9]*" step="any" placeholder="Start" oninput="resetButton()">
+            </div>
+            <div class="input-group">
+                <label for="odoEnd">Odo End (km)</label>
+                <input type="number" id="odoEnd" inputmode="decimal" pattern="[0-9]*" step="any" placeholder="End" oninput="resetButton()">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="price">Diesel Price (₹/L)</label>
+            <input type="number" id="price" inputmode="decimal" pattern="[0-9]*" step="any" placeholder="0.0" oninput="resetButton()">
+        </div>
+
+        <div class="row-group">
+            <button id="actionButton" class="primary-btn" onclick="handleButtonClick()" style="flex:3;">Show Price</button>
+            <button class="secondary-btn" onclick="clearCalculator()" style="flex:1.5;">Clear</button>
+        </div>
+
+        <div id="saveSection" style="display: none; margin-top: 15px;">
+            <div class="input-group">
+                <label for="tripName">Trip Name / Purpose</label>
+                <input type="text" id="tripName" placeholder="e.g., Erode Market Run">
+            </div>
+            <button id="confirmSaveButton" class="save-btn" onclick="saveToFuelLogOnly()">💾 Confirm Save</button>
+        </div>
+    </div>
+
+    <!-- STAGE 2 SCREEN: TRIP ADDITIONAL DETAILS FORM (DYNAMICALLY HIDDEN HOLIDAY VIBE) -->
+    <div class="container-card" id="tripFormView" style="display: none;">
+        <h2>📝 Trip Summary Details</h2>
+        
+        <div class="input-group">
+            <label for="endDate">End Date</label>
+            <input type="date" id="endDate">
+        </div>
+
+        <!-- 🚀 FIXED SIDE BY SIDE FROM / TO ROW GROUP -->
+        <div class="row-group">
+            <div class="input-group">
+                <label for="fromLoc">From Location</label>
+                <input type="text" id="fromLoc" placeholder="Origin">
+            </div>
+            <div class="input-group">
+                <label for="toLoc">To Location</label>
+                <input type="text" id="toLoc" placeholder="Destination">
+            </div>
+        </div>
+
+        <!-- 🚀 FIXED SIDE BY SIDE PEOPLE / STAY COSTS ROW GROUP -->
+        <div class="row-group">
+            <div class="input-group">
+                <label for="peopleCount">People Count</label>
+                <input type="number" id="peopleCount" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label for="stayCost">Stay Cost (₹)</label>
+                <input type="number" id="stayCost" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+            </div>
+        </div>
+
+        <!-- 🚀 FIXED SIDE BY SIDE FOOD / OTHER COSTS ROW GROUP -->
+        <div class="row-group">
+            <div class="input-group">
+                <label for="foodCost">Food Cost (₹)</label>
+                <input type="number" id="foodCost" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label for="otherCost">Other Cost (₹)</label>
+                <input type="number" id="otherCost" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="memories">Detailed Memories / Notes</label>
+            <textarea id="memories" placeholder="Write down notes about the journey..."></textarea>
+        </div>
+
+        <button id="finalFormSaveBtn" onclick="saveTripSummaryDetails()">💾 Save Trip Summary</button>
+    </div>
+
+    <!-- DASHBOARD MODAL INTERCEPT DIALOGUE VIEW LAYOUT -->
+    <div id="dialogueModal" class="modal-overlay">
+        <div>
+            <p>Should I save this in trip log also?</p>
+            <div class="row-group">
+                <button class="primary-btn" onclick="handleModalYes()" style="padding:12px;">Yes</button>
+                <button class="secondary-btn" onclick="handleModalNah()" style="padding:12px;">Nah</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+let isShowingResult = false;
+let currentCalculation = null;
+
+// 🔗 DEPLOYED WEB APP URL ENDPOINT VALUES
+const WEB_APP_URL_FUEL = "https://script.google.com/macros/s/AKfycbw1rBsZgop55NfJb8Ll-mU-yzH5h21_PgngT6Dl2xJ8Fm1kErFGyvUNwJeWt8P6AzMZeg/exec";
+const WEB_APP_URL_TRIP = "https://script.google.com/macros/s/AKfycbyXeE8llfOrb5xWJIvCEdb7g0KCKd0YHIHZPFLQSBhuH-vQghBSMeANSA2ussbI1oOR/exec";
+
+
+window.onload = function() {
+    const lastOdoEnd = localStorage.getItem('lastOdoEnd');
+    if (lastOdoEnd) {
+        document.getElementById('odoStart').value = lastOdoEnd;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('endDate').value = today;
+};
+
+function handleButtonClick() {
+    if (isShowingResult) return;
+
+    const odoStart = parseFloat(document.getElementById('odoStart').value);
+    const odoEnd = parseFloat(document.getElementById('odoEnd').value);
+    const price = parseFloat(document.getElementById('price').value);
+    const defaultMileage = 15;
+
+    if (isNaN(odoStart) || odoEnd <= odoStart || isNaN(price) || price <= 0) {
+        alert("Odo End must be greater than Odo Start!");
+        return;
+    }
+
+    const distance = odoEnd - odoStart;
+    const litersNeeded = distance / defaultMileage;
+    const totalCost = Math.round(litersNeeded * price);
+
+    const btn = document.getElementById('actionButton');
+    btn.innerHTML = `<strong>₹${totalCost}</strong> &nbsp;(${distance.toFixed(1)} km)`;
+    btn.classList.add('showing-result');
+    isShowingResult = true;
+
+    currentCalculation = {
+        odoStart: odoStart,
+        odoEnd: odoEnd,
+        distance: distance.toFixed(1),
+        price: price,
+        liters: litersNeeded.toFixed(2),
+        cost: totalCost
+    };
+
+    document.getElementById('saveSection').style.display = "block";
+}
+
+function resetButton() {
+    if (isShowingResult) {
+        const btn = document.getElementById('actionButton');
+        btn.innerText = "Show Price";
+        btn.classList.remove('showing-result');
+        document.getElementById('saveSection').style.display = "none";
+        document.getElementById('tripName').value = '';
+        isShowingResult = false;
+    }
+}
+
+function clearCalculator() {
+    document.getElementById('odoStart').value = localStorage.getItem('lastOdoEnd') || '';
+    document.getElementById('odoEnd').value = '';
+    document.getElementById('price').value = '';
+    resetButton();
+}
+
+function saveToFuelLogOnly() {
+    if (!currentCalculation) return;
+
+    const tripName = document.getElementById('tripName').value.trim() || "Unnamed Trip";
+    currentCalculation.tripName = tripName;
+    currentCalculation.date = new Date().toLocaleDateString();
+
+    const saveBtn = document.getElementById('confirmSaveButton');
+    saveBtn.innerText = "⏳ Saving...";
+    saveBtn.disabled = true;
+
+    fetch(WEB_APP_URL_FUEL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentCalculation)
+    })
+    .then(() => {
+        document.getElementById('dialogueModal').style.display = "flex";
+    })
+    .catch(err => {
+        alert("Fuel Log Save Failed");
+        saveBtn.innerText = "💾 Confirm Save";
+        saveBtn.disabled = false;
+    });
+}
+
+function handleModalNah() {
+    document.getElementById('dialogueModal').style.display = "none";
+    finalizeSequence();
+}
+
+function handleModalYes() {
+    document.getElementById('dialogueModal').style.display = "none";
+    document.getElementById('calculatorView').style.display = "none";
+    document.getElementById('tripFormView').style.display = "block";
+    window.scrollTo(0, 0);
+}
+
+function saveTripSummaryDetails() {
+    const finalBtn = document.getElementById('finalFormSaveBtn');
+    finalBtn.innerText = "⏳ Uploading Trip Log...";
+    finalBtn.disabled = true;
+
+    var rawInputDate = document.getElementById('endDate').value;
+    var formattedEndDate = "";
+    if (rawInputDate) {
+        var parts = rawInputDate.split('-');
+        formattedEndDate = parts[1] + '/' + parts[2] + '/' + parts[0];
+    } else {
+        formattedEndDate = currentCalculation.date;
+    }
+
+    const payload = {
+        ...currentCalculation,
+        endDate: formattedEndDate,
+        fromLoc: document.getElementById('fromLoc').value.trim(),
+        toLoc: document.getElementById('toLoc').value.trim(),
+        peopleCount: parseInt(document.getElementById('peopleCount').value) || 0,
+        stayCost: parseFloat(document.getElementById('stayCost').value) || 0,
+        foodCost: parseFloat(document.getElementById('foodCost').value) || 0,
+        otherCost: parseFloat(document.getElementById('otherCost').value) || 0,
+        memories: document.getElementById('memories').value.trim()
+    };
+
+    fetch(WEB_APP_URL_TRIP, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        alert("🚀 Trip Summary saved successfully!");
+        document.getElementById('fromLoc').value = '';
+        document.getElementById('toLoc').value = '';
+        document.getElementById('peopleCount').value = '';
+                document.getElementById('stayCost').value = '';
+        document.getElementById('foodCost').value = '';
+        document.getElementById('otherCost').value = '';
+        document.getElementById('memories').value = '';
+        
+        // Reset calendar position back to current date default settings
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('endDate').value = today;
+        
+        // Flip screen views layout display modes back to main calculator card
+        document.getElementById('tripFormView').style.display = "none";
+        document.getElementById('calculatorView').style.display = "block";
+        
+        finalBtn.innerText = "💾 Save Trip Summary";
+        finalBtn.disabled = false;
+        finalizeSequence();
+    })
+    .catch(err => {
+        alert("Failed to save Trip Summary details.");
+        finalBtn.innerText = "💾 Save Trip Summary";
+        finalBtn.disabled = false;
+    });
+}
+
+function finalizeSequence() {
+    // 1. FIRST, check if data exists, then grab the odo value safely
+    if (currentCalculation) {
+        localStorage.setItem('lastOdoEnd', currentCalculation.odoEnd);
+        const nextStart = currentCalculation.odoEnd;
+        document.getElementById('odoStart').value = nextStart;
+    } else {
+        // Fallback to local storage if variable was already cleared somewhere else
+        document.getElementById('odoStart').value = localStorage.getItem('lastOdoEnd') || '';
+    }
+
+    // 2. Clear out the rest of the calculator input screens
+    resetButton();
+    document.getElementById('odoEnd').value = '';
+    document.getElementById('price').value = '';
+    
+    // 3. Restore the Save Button status
+    const confirmBtn = document.getElementById('confirmSaveButton');
+    if (confirmBtn) {
+        confirmBtn.innerText = "💾 Confirm Save";
+        confirmBtn.disabled = false;
+    }
+    
+    // 4. NOW it is completely safe to wipe the calculation data tracking variable
+    currentCalculation = null;
+}
+
+</script>
+</body>
+</html>

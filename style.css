@@ -1,0 +1,276 @@
+/* ==========================================
+   🚨 RESET & CORE MOBILE FRAMEWORK GLOBAL SETUP
+   ========================================== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 16px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #0d0f12;
+    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base App Card Wrapper with Fluid Entry Animation */
+.container-card {
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    padding: 24px;
+    border-radius: 20px;
+    animation: screenSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 🚀 FIXED LOGISTICS SPACING SYSTEM */
+.input-group {
+    margin-bottom: 22px; /* Increased padding to separate fields cleanly */
+}
+
+/* Restores side-by-side spacing for input grids */
+.row-group {
+    display: flex;
+    gap: 16px; /* Clean gap between horizontal fields */
+    margin-bottom: 22px;
+}
+
+.row-group .input-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px 14px; /* Decreased bulky height padding to give elements room to breathe */
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+textarea {
+    resize: none;
+    height: 75px;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   🏎️ SCREEN 1 THEME: DARK CARBON CAR DASHBOARD
+   ========================================== */
+#calculatorView {
+    background: linear-gradient(145deg, #141923, #1c2230);
+    border: 1px solid #2d374d;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+#calculatorView h2 {
+    color: #ff9f43;
+    font-weight: 900;
+    text-shadow: 0 0 12px rgba(255, 159, 67, 0.3);
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 26px;
+}
+#calculatorView label {
+    color: #8fa0ba;
+}
+#calculatorView input {
+    background-color: #0b0e14;
+    border: 1px solid #2d374d;
+    color: #ffffff;
+}
+#calculatorView input:focus {
+    border-color: #ff9f43;
+    box-shadow: 0 0 10px rgba(255, 159, 67, 0.25);
+}
+#calculatorView input:disabled {
+    background-color: #11151e;
+    color: #4c5a71;
+    border-color: #1f2635;
+}
+
+/* Transformative Nitro Action Button Styles */
+#actionButton {
+    background: linear-gradient(135deg, #ff9f43 0%, #ff6b6b 100%);
+    color: #000000;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.35);
+}
+#actionButton.showing-result {
+    background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);
+    color: #ffffff;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(29, 209, 161, 0.4);
+    transform: scale(1.01);
+}
+.secondary-btn {
+    background-color: #273043;
+    color: #a4b3cc;
+    border: 1px solid #36435c;
+}
+.secondary-btn:hover {
+    background-color: #36435c;
+    color: #ffffff;
+}
+.save-btn {
+    background: linear-gradient(135deg, #107c41 0%, #1f9a55 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(16, 124, 65, 0.4);
+    margin-top: 8px;
+}
+
+
+/* ==========================================
+   🌴 SCREEN 2 THEME: TROPICAL HOLIDAY VIBES
+   ========================================== */
+#tripFormView {
+    background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+    border: 1px solid #b2ebf2;
+    box-shadow: 0 12px 36px rgba(0, 114, 130, 0.15);
+}
+#tripFormView h2 {
+    color: #00838f;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 26px;
+}
+#tripFormView label {
+    color: #006064;
+}
+#tripFormView input, #tripFormView textarea {
+    background-color: #ffffff;
+    border: 1px solid #b2ebf2;
+    color: #004d40;
+    font-weight: 600;
+}
+#tripFormView input:focus, #tripFormView textarea:focus {
+    border-color: #00bcbc;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.25);
+}
+#tripFormView button {
+    background: linear-gradient(135deg, #00acc1 0%, #00838f 100%);
+    color: #ffffff;
+    box-shadow: 0 5px 15px rgba(0, 131, 143, 0.3);
+    margin-top: 8px;
+}
+
+/* ==========================================
+   📟 MODAL POP-UP DIALOGUE SELECTION OVERLAY
+   ========================================== */
+#dialogueModal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(5, 7, 10, 0.88);
+    backdrop-filter: blur(5px);
+    display: none; /* Controlled dynamically by JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+#dialogueModal > div {
+    background: linear-gradient(145deg, #1c2230, #131722);
+    border: 1px solid #3d4b66;
+    padding: 26px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+    animation: modalBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#dialogueModal p {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 24px;
+    line-height: 1.4;
+    color: #ffffff;
+}
+
+/* 🚀 ACCURATE 50/50 GRIDS FLEX SEPARATOR LAYER */
+#dialogueModal .row-group {
+    display: flex !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#dialogueModal button {
+    flex: 1 !important; 
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 14px !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+}
+
+/* Master Theme Custom Accent Overrides */
+#dialogueModal button:nth-child(1) {
+    background: linear-gradient(135deg, #ff9f43 0%, #ff6b6b 100%) !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+}
+
+#dialogueModal button:nth-child(2) {
+    background-color: #273043 !important;
+    color: #a4b3cc !important;
+    border: 1px solid #36435c !important;
+    box-shadow: none !important;
+}
+
+#dialogueModal button:active {
+    transform: scale(0.97) !important;
+}
+
+/* ✨ SMOOTH DIALOGUE ENTRY POPUP ANIMATION */
+@keyframes modalBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
